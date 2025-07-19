@@ -1,0 +1,50 @@
+= Package Catalog - meso-forge
+
+This document lists all packages available across the meso-forge package domains.
+Generated automatically by scanning all pkgs/* branches.
+
+
+== developer-tools Domain
+* *asyncio*
+* *devcontainer-cli*
+* *flask-jwt-extended*
+* *gtksourceview5*
+* *jank*
+* *metashell*
+* *nifi*
+* *opendal-oli*
+* *ratatui*
+* *testresources*
+
+== document-tools Domain
+* *antora*
+* *asciidoctor-revealjs*
+
+== system-tools Domain
+* *bash-preexec*
+* *bitwarden-cli*
+* *ble-sh*
+* *doctl*
+* *dysk*
+* *fd*
+* *fsarchiver*
+* *internxt-cli*
+* *podlet*
+* *pwgen*
+* *rotz*
+
+== tactical Domain
+* *digitalpy*
+* *freetakserver*
+* *freetakserver-ui*
+* *iamb*
+* *mediamtx*
+* *mumble-voip*
+* *node-red*
+* *node-red-worldmap*
+* *pytak*
+* *takproto*
+
+---
+
+_Generated on 2025-07-19 18:20:30 by catalog-packages script_
