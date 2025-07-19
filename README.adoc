@@ -1,0 +1,25 @@
+= System Tools - meso-forge
+
+This branch contains system utilities, file management, and shell enhancement packages.
+
+== Packages
+
+* *bash-preexec* - Preexec and precmd functions for Bash (like Zsh)
+* *bitwarden-cli* - The Bitwarden command-line interface (CLI)
+* *ble-sh* - Bash Line Editor with syntax highlighting, auto suggestions, vim modes, etc.
+* *doctl* - The official command line interface for the DigitalOcean API
+* *dysk* - Linux utility to get information on filesystems, like df but better
+* *fd* - Simple, fast and user-friendly alternative to find
+* *fsarchiver* - File system archiver for linux
+* *internxt-cli* - A CLI tool to interact with your Internxt encrypted files
+* *podlet* - Generate Podman Quadlet files from a Podman command, compose file, or existing object
+* *pwgen* - Password generator
+* *rotz* - Fully cross platform dotfile manager and dev environment bootstrapper written in Rust
+
+== Usage
+
+[source,bash]
+----
+pixi global install meso-forge-tooling -c https://prefix.dev/meso-forge
+pixi run build-all
+----

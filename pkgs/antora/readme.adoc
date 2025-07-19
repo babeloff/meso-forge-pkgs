@@ -1,0 +1,95 @@
+= Antora Package
+
+A conda package for Antora, a modular documentation site generator designed for creating documentation sites from AsciiDoc documents.
+
+== About Antora
+
+Antora is a static site generator that:
+
+* Aggregates documents from versioned content repositories
+* Processes them using Asciidoctor
+* Creates beautiful, navigable documentation sites
+* Supports multi-repository documentation workflows
+* Enables docs-as-code practices
+
+== Installation
+
+Install using conda/mamba:
+
+[source,bash]
+----
+conda install -c meso-forge antora
+----
+
+or
+
+[source,bash]
+----
+mamba install -c meso-forge antora
+----
+
+== Usage
+
+After installation, the `antora` command will be available:
+
+[source,bash]
+----
+# Check version
+antora --version
+
+# Generate a site from a playbook
+antora antora-playbook.yml
+
+# Show help
+antora --help
+----
+
+== Requirements
+
+* Node.js >= 16.0.0 (automatically installed as dependency)
+
+== Example Playbook
+
+Create an `antora-playbook.yml` file:
+
+[source,yaml]
+----
+site:
+  title: My Documentation Site
+  url: https://example.com
+  start_page: component-a::index.adoc
+
+content:
+  sources:
+  - url: https://github.com/example/docs-repo.git
+    branches: [main]
+
+ui:
+  bundle:
+    url: https://gitlab.com/antora/antora-ui-default/-/jobs/artifacts/HEAD/raw/build/ui-bundle.zip?job=bundle-stable
+    snapshot: true
+
+output:
+  dir: ./build/site
+----
+
+Then run:
+
+[source,bash]
+----
+antora antora-playbook.yml
+----
+
+== Links
+
+* Homepage: https://antora.org
+* Documentation: https://docs.antora.org
+* Source Code: https://gitlab.com/antora/antora
+* License: MPL-2.0
+
+== Package Information
+
+* Version: 3.1.10
+* Source: https://gitlab.com/antora/antora
+* License: Mozilla Public License 2.0
+* Maintainer: phreed

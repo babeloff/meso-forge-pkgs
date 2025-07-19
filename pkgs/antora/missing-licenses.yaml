@@ -1,0 +1,18 @@
+# Missing licenses for Antora package dependencies
+# This file documents any missing or hard-to-find license information
+# for dependencies that may not have clear license files
+
+# Most Node.js packages in Antora's dependency tree should have proper
+# license information in their package.json files, so this file may
+# remain empty unless specific issues are discovered during packaging
+
+# If any dependencies are found to have missing license information,
+# they should be documented here with the following format:
+#
+# package_name:
+#   license: "LICENSE_TYPE"
+#   license_url: "URL_TO_LICENSE"
+#   notes: "Any additional notes about the license"
+
+# Currently no missing licenses identified for Antora core packages
+{}

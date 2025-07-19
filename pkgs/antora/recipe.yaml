@@ -1,0 +1,95 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/prefix-dev/recipe-format/main/schema.json
+schema_version: 1
+
+context:
+  version: "3.1.10"
+
+package:
+  name: antora
+  version: ${{ version }}
+
+source:
+  url: https://gitlab.com/antora/antora/-/archive/v${{ version }}/antora-v${{ version }}.tar.gz
+  sha256: 34757d54b6fb89e0c9bfba71e671a7ac495b511e96ba4e84438fbad531b1b193
+
+build:
+  number: 0
+  noarch: generic
+  script:
+    interpreter: nu
+    content: |
+      # Install workspace dependencies and pack the antora package
+      ^npm install --include=dev
+      cd packages/antora
+      ^npm pack
+
+      # Install antora globally in our prefix using the packed tarball
+      ^npm install --global --prefix $env.PREFIX antora-${{ version }}.tgz
+
+      # Verify installation
+      let bin_dir = ($env.PREFIX | path join "bin")
+      if not (($bin_dir | path join "antora") | path exists) {
+        error make {msg: "Antora installation failed - binary not found"}
+      }
+
+requirements:
+  build:
+    - nushell
+    - nodejs >=16.0.0
+  run:
+    - nodejs >=16.0.0
+
+tests:
+  # Test 1: Verify package contents are included
+  - package_contents:
+      files:
+        # antora binary (symlink created by npm)
+        - bin/antora
+        # Node modules and package structure
+        - lib/node_modules/antora/package.json
+        - lib/node_modules/antora/bin/antora
+
+  # Test 2: Functional tests
+  - requirements:
+      build:
+        - nushell
+        - nodejs
+    script:
+      interpreter: nu
+      content: |
+        # Test that antora command exists and shows version
+        let version_output = (^antora --version | str trim)
+        if not ($version_output | str contains "${{ version }}") {
+          exit 1
+        }
+
+        # Test that antora shows help
+        let help_output = (^antora --help | str trim)
+        if not ($help_output | str contains "generate") {
+          exit 1
+        }
+
+about:
+  homepage: https://antora.org
+  license: MPL-2.0
+  license_file: LICENSE
+  summary: A modular documentation site generator for AsciiDoc content
+  description: |
+    Antora is a modular static site generator designed for creating documentation
+    sites from AsciiDoc documents. Its site generator aggregates documents from
+    versioned content repositories and processes them using Asciidoctor.
+
+    Antora helps technical writing teams create, manage, collaborate on, remix,
+    and publish documentation sites sourced from a variety of versioned content
+    repositories.
+
+    This package installs the complete Antora toolchain including the CLI and
+    site generator using npm's global installation within the conda environment.
+
+extra:
+  recipe-maintainers:
+    - phreed
+
+  version:
+    gitlab-tags:
+      - ^v(\d+\.\d+\.\d+)$
