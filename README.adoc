@@ -1,0 +1,52 @@
+= meso-forge Packages
+
+This repository contains domain-specific conda packages for various development tools, libraries, and applications.
+
+== Packages
+
+=== Development Tools & Environments
+
+* *devcontainer-cli* - Configure Devcontainer CLI for containerized development environments
+* *gtksourceview5* - Text view with syntax, undo/redo, and text marks for GTK applications
+* *metashell* - Metaprogramming shell for C++ templates
+
+=== Data Processing & Storage
+
+* *nifi* - Easy to use, powerful, and reliable system to process and distribute data
+* *opendal-oli* - Apache OpenDAL™ Oli - command line interface for data manipulation across various storage services
+
+=== Programming Languages & Frameworks
+
+* *jank* - Jank a LLVM hosted Clojure implementation
+* *ratatui* - A Rust crate for cooking TUIs (terminal user interfaces)
+
+=== Python Libraries & Extensions
+
+* *asyncio* - Reference implementation of PEP 3156 for asynchronous I/O in Python
+* *flask-jwt-extended* - An open source Flask extension for JWT token management
+* *testresources* - Testresources, a pyunit extension for managing expensive test resources
+
+== Usage
+
+[source,bash]
+----
+# Install meso-forge-tooling first
+pixi global install meso-forge-tooling -c https://prefix.dev/meso-forge
+
+# Build all packages
+pixi run build-all
+
+# Build specific package
+pixi run build nifi
+
+# Publish packages
+pixi run publish
+----
+
+== Contributing
+
+1. Add packages that provide value to the development ecosystem
+2. Follow the package template structure and naming conventions
+3. Include proper licensing and dependency information
+4. Update this README when adding new packages
+5. Ensure packages build successfully and include appropriate tests
