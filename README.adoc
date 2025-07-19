@@ -4,7 +4,6 @@ This branch contains system utilities, file management, and shell enhancement pa
 
 == Packages
 
-* *antora* - A modular documentation site generator for AsciiDoc content
 * *bash-preexec* - Preexec and precmd functions for Bash (like Zsh)
 * *bitwarden-cli* - The Bitwarden command-line interface (CLI)
 * *ble-sh* - Bash Line Editor with syntax highlighting, auto suggestions, vim modes, etc.
