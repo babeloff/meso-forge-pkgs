@@ -1,0 +1,97 @@
+= Meso-Forge Packages - Management Branch
+
+This is the management branch for the meso-forge packages repository. This branch contains the tools and templates needed to create new package domain branches.
+
+== Repository Structure
+
+This repository uses a multi-branch approach where each branch represents a different package domain:
+
+* `management` - This branch (contains scripts, templates, and tooling)
+* `pkgs/<domain-name>` - Package domain branches (e.g., `pkgs/webkit`, `pkgs/tactical`)
+
+== Creating New Package Domains
+
+To create a new package domain branch, use the `new-domain` task:
+
+[source,bash]
+----
+pixi run new-domain <domain-name> [content-description] [list-of-packages]
+----
+
+=== Examples
+
+Create a basic domain:
+[source,bash]
+----
+pixi run new-domain webkit
+----
+
+Create with custom description:
+[source,bash]
+----
+pixi run new-domain ai-tools --content_description "artificial intelligence and machine learning tools"
+----
+
+Create with full customization:
+[source,bash]
+----
+pixi run new-domain web-dev \
+  --content_description "web development frameworks and tools" \
+  --list_of_packages "nodejs, webpack, typescript, react"
+----
+
+== Branch Management
+
+=== Switching to Domain Branches
+
+[source,bash]
+----
+git checkout pkgs/<domain-name>
+----
+
+=== Returning to Management
+
+[source,bash]
+----
+git checkout management
+----
+
+=== Listing All Domains
+
+[source,bash]
+----
+git branch | grep "pkgs/"
+----
+
+== Templates
+
+The `templates/` directory contains template files that are processed when creating new domain branches:
+
+* `.gitattributes.template` → `.gitattributes`
+* `.gitignore.template` → `.gitignore`
+* `README.adoc.template` → `README.adoc`
+* `pixi.toml.template` → `pixi.toml`
+
+Template variables that are substituted:
+
+* `<< domain-name >>` - The domain name
+* `<< content-description >>` - Description of the domain's content
+* `<< list-of-packages >>` - List of packages in the domain
+
+== Scripts
+
+* `scripts/new-domain.nu` - Nushell script for creating new package domain branches
+
+== Development Workflow
+
+1. Stay on the `management` branch for repository administration
+2. Create new domain branches using `pixi run new-domain <name>`
+3. Switch to domain branches to work on specific packages
+4. Update templates and scripts on the `management` branch as needed
+
+== Dependencies
+
+* Nushell (`nu`) - Required for running the domain creation scripts
+* Git - For branch management
+* Pixi - For task execution and package management
+* meso-forge-tooling - For package building and publishing
