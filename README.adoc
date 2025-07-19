@@ -4,11 +4,24 @@ This branch contains packages for military, defense, and tactical data systems.
 
 == Packages
 
-* *freetakserver* - FreeTAK Server for tactical data
-* *freetakserver-ui* - UI for FreeTAK Server
-* *pytak* - Python TAK (Team Awareness Kit) library
-* *takproto* - TAK protocol implementation
-* *digitalpy* - Digital Python framework for tactical systems
+=== Tactical & Communication Packages
+
+* *digitalpy* - A python implementation of the aphrodite specification
+* *freetakserver* - An open source server for the TAK family of applications
+* *freetakserver-ui* - An optional UI for FreeTAKServer
+* *pytak* - PyTAK is a Python package for rapid Team Awareness Kit (TAK) integration
+* *takproto* - TAKProto is a Python package to encode and decode TAK data
+
+=== Communication & Media Packages
+
+* *iamb* - Matrix client for Vim addicts
+* *mediamtx* - MediaMTX is a live media server
+* *mumble-voip* - Mumble is a free, open source, low latency, high quality voice chat application
+
+=== Automation & Visualization Packages
+
+* *node-red* - Low-code programming for event-driven applications
+* *node-red-worldmap* - A Node-RED node to provide a world map web page for plotting "things" on
 
 == Usage
 
