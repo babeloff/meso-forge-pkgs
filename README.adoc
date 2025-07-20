@@ -1,15 +1,202 @@
-= webkit  - meso-forge
+= WebKit Domain - meso-forge
 
-This branch contains domain-specific packages.
+This branch contains WebKit browser engine and related web technology packages for Linux systems.
 
 == Packages
 
-TBD
+=== Core WebKit Packages
 
-== Usage
+* *webkit* - Cross-platform web browser engine with GTK integration
+  - Full HTML5, CSS3, and JavaScript support
+  - Hardware acceleration and media playback capabilities
+  - WebKit2GTK library for embedding web content in GTK applications
+  - JavaScriptCore standalone JavaScript execution engine
+  - Version: 2.44.2
+
+* *webkit-dev* - WebKit development tools and debugging features
+  - Debug builds with development symbols
+  - Additional development tools and test frameworks
+  - Enhanced debugging capabilities for WebKit development
+  - Development utilities and documentation
+
+=== System Dependencies
+
+* *at-spi2-core* - Accessibility framework core components
+  - AT-SPI2 protocol over DBus for accessibility support
+  - Registry daemon and core libraries for screen readers
+  - Essential for accessibility compliance in WebKit applications
+  - Version: 2.50.0
+
+* *libsoup* - HTTP client/server library for GNOME
+  - HTTP/1.1 and HTTP/2 protocol support
+  - WebSocket support with authentication mechanisms
+  - GObject-based integration with GNOME applications
+  - Network backend for WebKit's HTTP communications
+  - Version: 3.4.4
+
+=== Cryptographic Libraries
+
+* *libgcrypt* - General purpose cryptographic library
+  - Cryptographic building blocks for secure communications
+  - Required for SSL/TLS support in WebKit
+  - FIPS 140-2 compliant cryptographic operations
+
+* *libgpg-error* - Library for common error values used by GnuPG components
+  - Error handling support for cryptographic operations
+  - Common error definitions for GPG-related libraries
+  - Foundation library for libgcrypt
+
+=== Build Tools
+
+* *unifdef* - Preprocessor conditioning utility
+  - Removes or conditions preprocessor lines from source code
+  - Essential build tool for WebKit's multi-platform compilation
+  - Creates clean source files from conditionally compiled code
+  - Version: 2.12
+
+== Installation
 
 [source,bash]
 ----
-pixi global install meso-forge-tooling -c https://prefix.dev/meso-forge
-pixi run build-all
+# Install from meso-forge channel
+pixi global install webkit -c https://prefix.dev/meso-forge
+
+# Or install all webkit domain packages
+pixi global install webkit webkit-dev at-spi2-core libsoup libgcrypt libgpg-error unifdef -c https://prefix.dev/meso-forge
+----
+
+== Usage Examples
+
+=== C/C++ Development with WebKit
+
+[source,c]
+----
+#include <webkit2/webkit2.h>
+#include <gtk/gtk.h>
+
+int main(int argc, char* argv[]) {
+    gtk_init(&argc, &argv);
+
+    GtkWidget *window = gtk_window_new(GTK_WINDOW_TOPLEVEL);
+    gtk_window_set_default_size(GTK_WINDOW(window), 800, 600);
+
+    WebKitWebView *webview = WEBKIT_WEB_VIEW(webkit_web_view_new());
+    gtk_container_add(GTK_CONTAINER(window), GTK_WIDGET(webview));
+
+    webkit_web_view_load_uri(webview, "https://webkit.org");
+
+    g_signal_connect(window, "destroy", G_CALLBACK(gtk_main_quit), NULL);
+    gtk_widget_show_all(window);
+    gtk_main();
+
+    return 0;
+}
+----
+
+Compile with:
+[source,bash]
+----
+gcc -o webkit-browser main.c $(pkg-config --cflags --libs webkit2gtk-4.1 gtk+-3.0)
+----
+
+=== Python Development with PyGObject
+
+[source,python]
+----
+#!/usr/bin/env python3
+import gi
+gi.require_version('Gtk', '3.0')
+gi.require_version('WebKit2', '4.1')
+
+from gi.repository import Gtk, WebKit2
+
+class WebKitBrowser:
+    def __init__(self):
+        self.window = Gtk.Window()
+        self.window.set_default_size(1024, 768)
+        self.window.connect('destroy', Gtk.main_quit)
+
+        self.webview = WebKit2.WebView()
+        self.window.add(self.webview)
+
+        self.webview.load_uri("https://example.com")
+
+    def run(self):
+        self.window.show_all()
+        Gtk.main()
+
+if __name__ == "__main__":
+    browser = WebKitBrowser()
+    browser.run()
+----
+
+=== JavaScript Engine (JavaScriptCore) Usage
+
+[source,c]
+----
+#include <jsc/jsc.h>
+#include <stdio.h>
+
+int main() {
+    JSCContext *context = jsc_context_new();
+
+    JSCValue *result = jsc_context_evaluate(context,
+        "function factorial(n) { return n <= 1 ? 1 : n * factorial(n-1); } factorial(5);", -1);
+
+    printf("Result: %d\n", jsc_value_to_int32(result));
+
+    g_object_unref(result);
+    g_object_unref(context);
+    return 0;
+}
+----
+
+== Development
+
+=== Building Applications
+
+For development with these packages, you'll typically need:
+
+[source,bash]
+----
+# Install development dependencies
+pixi global install gtk3-dev glib-dev pkg-config gcc -c conda-forge
+
+# Verify WebKit installation
+pkg-config --exists webkit2gtk-4.1
+pkg-config --modversion webkit2gtk-4.1
+----
+
+=== Available pkg-config Modules
+
+* `webkit2gtk-4.1` - Main WebKit2GTK library
+* `javascriptcoregtk-4.1` - JavaScript engine
+* `libsoup-3.0` - HTTP library
+* `atspi-2` - Accessibility framework
+
+== Platform Support
+
+These packages are built for Linux systems with:
+
+* x86_64 architecture
+* GTK3/GTK4 desktop environments
+* Modern glibc (2.17+)
+* DBus session support for accessibility
+
+== Related Resources
+
+* https://webkit.org/[WebKit Project]
+* https://webkitgtk.org/[WebKitGTK Documentation]
+* https://developer.gnome.org/webkit2gtk/stable/[API Reference]
+* https://blogs.igalia.com/webkit/[WebKit Development Blog]
+
+== License Information
+
+All packages in this domain are open source:
+
+* WebKit: LGPL-2.1+ and BSD-2-Clause
+* AT-SPI2: LGPL-2.1+
+* libsoup: LGPL-2.0+
+* libgcrypt: LGPL-2.1+
+* unifdef: BSD-2-Clause
 ----
