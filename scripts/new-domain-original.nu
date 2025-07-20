@@ -1,7 +1,7 @@
 #!/usr/bin/env nu
 
 # Script to create a new orphan branch with template files using Git worktrees
-# Usage: nu scripts/new-domain-worktree.nu <domain-name> [content-description] [list-of-packages]
+# Usage: nu scripts/new-domain.nu <domain-name> [content-description] [list-of-packages]
 
 def main [
     domain_name: string,               # Domain name for the packages (required)
@@ -56,17 +56,7 @@ def main [
 
     # Create new orphan branch in a worktree
     print $"Creating orphan branch '($branch_name)' in worktree '($worktree_path)'..."
-    ^git worktree add --detach $worktree_path
-    cd $worktree_path
-    ^git checkout --orphan $branch_name
-
-    # Remove all files from the orphan branch to start clean
-    try { ^git rm -rf . } catch { }
-
-    # Remove any remaining files (including hidden ones except .git)
-    ls -a | where name != ".git" and name != "." and name != ".." | each { |file| rm -rf $file.name }
-
-    cd $original_dir
+    ^git worktree add --orphan $worktree_path $branch_name
 
     # Check if templates directory exists in the current branch
     let templates_exist = try {
@@ -112,7 +102,6 @@ def main [
     # Extract templates to temporary directory
     print "Extracting template files..."
     let temp_dir = (^mktemp -d | str trim)
-
     try {
         ^git archive $template_branch templates/ | ^tar -x -C $temp_dir
     } catch {
@@ -128,22 +117,20 @@ def main [
     # Process template files
     print "Processing template files..."
     let template_files_path = ($temp_dir | path join "templates")
-
     let template_count = if ($template_files_path | path exists) {
         let template_files = try {
-            glob ($template_files_path | path join "*.template")
+            ls ($template_files_path | path join "*.template")
         } catch {
             []
         }
 
-        mut count = 0
-        for file_path in $template_files {
-            let target_file = ($file_path | path basename | str replace ".template" "")
-            print $"  Processing: ($file_path | path basename) -> ($target_file)"
+        for file in $template_files {
+            let target_file = ($file.name | path basename | str replace ".template" "")
+            print $"  Processing: ($file.name | path basename) -> ($target_file)"
 
             # Read template file and process variables
             let processed_content = (
-                open $file_path
+                open $file.name
                 | str replace -a "<< domain-name >>" $domain_name
                 | str replace -a "<< content-description >>" $content_desc
                 | str replace -a "<< list-of-packages >>" $package_list
@@ -151,10 +138,9 @@ def main [
 
             $processed_content | save $target_file
             ^git add $target_file
-            $count = $count + 1
         }
 
-        $count
+        ($template_files | length)
     } else {
         print "Warning: No templates directory found"
         0
@@ -178,7 +164,7 @@ def main [
 - Domain: ($domain_name)
 - Description: ($content_desc)"
 
-    ^git commit --no-gpg-sign -m $commit_message
+    ^git commit -m $commit_message
 
     # Return to original directory
     cd $original_dir
@@ -192,11 +178,10 @@ def main [
     print "To work on this branch:"
     print $"   cd ($worktree_path)"
     print ""
-    print "To publish this branch to remote and clean up:"
-    print $"   pixi run publish-domain ($domain_name)"
-    print ""
-    print "Or manually push and remove worktree:"
+    print "To push this new branch to remote:"
     print $"   cd ($worktree_path) && git push -u origin ($branch_name)"
+    print ""
+    print "To remove the worktree when done:"
     print $"   git worktree remove ($worktree_path)"
-    print $"   git branch -d ($branch_name)  # if you want to delete the branch too"
+    print "   git branch -d ($branch_name)  # if you want to delete the branch too"
 }

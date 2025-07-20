@@ -33,6 +33,15 @@ cmd = [
 ]
 description = "Create new domain branch (pkgs/<domain-name>) with template files and pkgs directory"
 
+[tasks.publish-domain]
+args = [{ arg = "domain_name" }]
+cmd = ["nu", "scripts/publish-domain.nu", "{{ domain_name }}"]
+description = "Push domain branch to remote and remove worktree on success"
+
+[tasks.list-worktrees]
+cmd = ["git", "worktree", "list"]
+description = "List all active Git worktrees"
+
 # Environment for management branch
 [environments]
 default = { solve-group = "default" }
