@@ -1,8 +1,30 @@
-= Package Catalog - meso-forge
 
-This document lists all packages available across the meso-forge package domains.
-Generated automatically by scanning all pkgs/* branches.
+== bulk-commit-1 Domain
+No packages found in pkgs/ directory
 
+== bulk-commit-2 Domain
+No packages found in pkgs/ directory
+
+== bulk-test-1 Domain
+No packages found in pkgs/ directory
+
+== bulk-test-2 Domain
+No packages found in pkgs/ directory
+
+== bulk-test-a Domain
+No packages found in pkgs/ directory
+
+== bulk-test-b Domain
+No packages found in pkgs/ directory
+
+== clean-test Domain
+No packages found in pkgs/ directory
+
+== demo-packages Domain
+No packages found in pkgs/ directory
+
+== demo-tools Domain
+No packages found in pkgs/ directory
 
 == developer-tools Domain
 * *asyncio*
@@ -19,6 +41,9 @@ Generated automatically by scanning all pkgs/* branches.
 == document-tools Domain
 * *antora*
 * *asciidoctor-revealjs*
+
+== flatpak Domain
+* *flatpak-builder*
 
 == system-tools Domain
 * *bash-preexec*
@@ -45,6 +70,27 @@ Generated automatically by scanning all pkgs/* branches.
 * *pytak*
 * *takproto*
 
+== test-commit Domain
+No packages found in pkgs/ directory
+
+== test-publish Domain
+No packages found in pkgs/ directory
+
+== test-tools Domain
+No packages found in pkgs/ directory
+
+== unified-test Domain
+No packages found in pkgs/ directory
+
+== webkit Domain
+* *at-spi2-core*
+* *libgcrypt*
+* *libgpg-error*
+* *libsoup*
+* *unifdef*
+* *webkit*
+* *webkit-dev*
+
 ---
 
-_Generated on 2025-07-19 18:20:30 by catalog-packages script_
+_Generated on 2025-07-19 20:16:55 by catalog-packages script_

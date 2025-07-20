@@ -1,18 +1,46 @@
 #!/usr/bin/env nu
 
 # Catalog all packages across pkgs/* branches and generate PACKAGES.adoc
-# This script scans all branches matching pkgs/* pattern and extracts package information
+# This script uses a temporary worktree to avoid disrupting the current working tree
 
 def main [] {
     print "Starting package catalog generation..."
 
-    # Get current branch to restore later
-    let current_branch = try {
-        ^git branch --show-current | str trim
+    # Check if we're in a git repository
+    try {
+        ^git rev-parse --git-dir | ignore
     } catch {
-        "management"  # fallback if no commits yet
+        error make {msg: "Not in a git repository"}
     }
-    print $"Current branch: ($current_branch)"
+
+    let worktree_path = "../meso-forge-pkgs-tmp/catalog"
+
+    print $"Using temporary worktree: ($worktree_path)"
+
+    # Clean up any existing worktree
+    if ($worktree_path | path exists) {
+        print "Cleaning up existing temporary worktree..."
+        try {
+            ^git worktree remove $worktree_path --force
+        } catch {
+            print $"Warning: Could not remove existing worktree, trying to delete directory..."
+            rm -rf $worktree_path
+        }
+    }
+
+    # Store original directory
+    let original_dir = (pwd)
+
+    # Create temporary worktree
+    print "Creating temporary worktree..."
+    try {
+        ^git worktree add --detach $worktree_path
+    } catch {
+        error make {msg: $"Failed to create temporary worktree at ($worktree_path)"}
+    }
+
+    # Change to worktree directory
+    cd $worktree_path
 
     # Create/overwrite PACKAGES.adoc with header
     let header = "= Package Catalog - meso-forge
@@ -39,6 +67,8 @@ Generated automatically by scanning all pkgs/* branches.
 
     if ($pkg_branches | is-empty) {
         print "No pkgs/* branches found!"
+        cd $original_dir
+        ^git worktree remove $worktree_path --force
         return
     }
 
@@ -117,18 +147,21 @@ Generated automatically by scanning all pkgs/* branches.
     let footer = $"\n---\n\n_Generated on ($now) by catalog-packages script_\n"
     $footer | save --append PACKAGES.adoc
 
-    # Return to original branch or create it if it doesn't exist
+    # Copy the generated catalog back to the original directory
+    print "Copying PACKAGES.adoc back to main worktree..."
+    cp PACKAGES.adoc $"($original_dir)/PACKAGES.adoc"
+
+    # Return to original directory and clean up worktree
+    cd $original_dir
+
+    print "Cleaning up temporary worktree..."
     try {
-        ^git checkout --force $current_branch
-        print $"Returned to original branch: ($current_branch)"
+        ^git worktree remove $worktree_path --force
+        print $"✅ Temporary worktree removed: ($worktree_path)"
     } catch {
-        try {
-            ^git checkout -b $current_branch
-            print $"Created and switched to new branch: ($current_branch)"
-        } catch {
-            print $"Warning: Could not return to or create branch ($current_branch)"
-        }
+        print $"⚠️  Warning: Could not remove temporary worktree at ($worktree_path)"
+        print "You may need to remove it manually with: git worktree remove $worktree_path --force"
     }
 
-    print "Package catalog generated in PACKAGES.adoc"
+    print "✅ Package catalog generated in PACKAGES.adoc"
 }

@@ -1,7 +1,7 @@
 #!/usr/bin/env nu
 
 # Script to create a new orphan branch with template files using Git worktrees
-# Usage: nu scripts/new-domain-worktree.nu <domain-name> [content-description] [list-of-packages]
+# Usage: nu scripts/new-domain.nu <domain-name> [content-description] [list-of-packages]
 
 def main [
     domain_name: string,               # Domain name for the packages (required)
@@ -11,7 +11,7 @@ def main [
     let branch_name = $"pkgs/($domain_name)"
     let content_desc = ($content_description | default "domain-specific")
     let package_list = ($list_of_packages | default "TBD")
-    let worktree_path = $"../meso-forge-pkgs-($domain_name)"
+    let worktree_path = $"../meso-forge-pkgs-tmp/new-($domain_name)"
 
     print $"Creating new orphan branch: ($branch_name)"
     print $"Domain name: ($domain_name)"

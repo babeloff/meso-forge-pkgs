@@ -79,7 +79,7 @@ def main [
             }
 
             if $branch_exists {
-                error make {msg: $"Domain '($domain)' exists but has no active worktree. Create one with: git worktree add ../meso-forge-pkgs-($domain) ($target_branch)"}
+                error make {msg: $"Domain '($domain)' exists but has no active worktree. Create one with: git worktree add ../meso-forge-pkgs-tmp/new-($domain) ($target_branch)"}
             } else {
                 error make {msg: $"Domain '($domain)' not found. Available domains: (($all_domain_worktrees | get branch | str join ', '))"}
             }
@@ -220,7 +220,7 @@ Auto-committed pending changes before publishing"
             print $"🌐 Branch 'pkgs/($domain)' is now available on remote"
             print ""
             print "To continue working on this domain, create a new worktree:"
-            print $"   git worktree add ../meso-forge-pkgs-($domain) pkgs/($domain)"
+            print $"   git worktree add ../meso-forge-pkgs-tmp/new-($domain) pkgs/($domain)"
         } else {
             print $"❌ Failed to publish domain '($domain)'"
         }
@@ -239,7 +239,7 @@ Auto-committed pending changes before publishing"
             for worktree in $domain_worktrees {
                 if ($worktree.path | path exists) == false {
                     let domain_name = ($worktree.branch | str replace "pkgs/" "")
-                    print $"   git worktree add ../meso-forge-pkgs-($domain_name) ($worktree.branch)"
+                    print $"   git worktree add ../meso-forge-pkgs-tmp/new-($domain_name) ($worktree.branch)"
                 }
             }
         }
