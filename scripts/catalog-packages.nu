@@ -13,6 +13,14 @@ def main [] {
         error make {msg: "Not in a git repository"}
     }
 
+    # Fetch latest remote information and prune stale branches
+    print "Fetching latest remote branch information..."
+    try {
+        ^git fetch --prune
+    } catch {
+        print "Warning: Could not fetch remote updates, proceeding with cached branch info"
+    }
+
     let worktree_path = "../meso-forge-pkgs-tmp/catalog"
 
     print $"Using temporary worktree: ($worktree_path)"

@@ -1,31 +1,4 @@
 
-== bulk-commit-1 Domain
-No packages found in pkgs/ directory
-
-== bulk-commit-2 Domain
-No packages found in pkgs/ directory
-
-== bulk-test-1 Domain
-No packages found in pkgs/ directory
-
-== bulk-test-2 Domain
-No packages found in pkgs/ directory
-
-== bulk-test-a Domain
-No packages found in pkgs/ directory
-
-== bulk-test-b Domain
-No packages found in pkgs/ directory
-
-== clean-test Domain
-No packages found in pkgs/ directory
-
-== demo-packages Domain
-No packages found in pkgs/ directory
-
-== demo-tools Domain
-No packages found in pkgs/ directory
-
 == developer-tools Domain
 * *asyncio*
 * *devcontainer-cli*
@@ -70,18 +43,6 @@ No packages found in pkgs/ directory
 * *pytak*
 * *takproto*
 
-== test-commit Domain
-No packages found in pkgs/ directory
-
-== test-publish Domain
-No packages found in pkgs/ directory
-
-== test-tools Domain
-No packages found in pkgs/ directory
-
-== unified-test Domain
-No packages found in pkgs/ directory
-
 == webkit Domain
 * *at-spi2-core*
 * *libgcrypt*
@@ -93,4 +54,4 @@ No packages found in pkgs/ directory
 
 ---
 
-_Generated on 2025-07-19 20:16:55 by catalog-packages script_
+_Generated on 2025-07-19 20:26:22 by catalog-packages script_
