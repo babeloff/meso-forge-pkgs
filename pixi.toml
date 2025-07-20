@@ -38,6 +38,14 @@ args = [{ arg = "domain_name" }]
 cmd = ["nu", "scripts/publish-domain.nu", "{{ domain_name }}"]
 description = "Push domain branch to remote and remove worktree on success"
 
+[tasks.publish-domains]
+cmd = ["nu", "scripts/publish-domains.nu"]
+description = "Publish all domain worktrees to remote and remove them on success"
+
+[tasks.publish-domains-dry-run]
+cmd = ["nu", "scripts/publish-domains.nu", "--dry-run"]
+description = "Show what domain worktrees would be published (dry run)"
+
 [tasks.list-worktrees]
 cmd = ["git", "worktree", "list"]
 description = "List all active Git worktrees"
