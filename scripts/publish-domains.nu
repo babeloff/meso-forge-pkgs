@@ -1,12 +1,20 @@
 #!/usr/bin/env nu
 
-# Script to publish all domain branches to remote and remove their worktrees on success
-# Usage: nu scripts/publish-domains.nu [--dry-run]
+# Script to publish domain branches to remote and remove worktrees on success
+# Usage:
+#   nu scripts/publish-domains.nu                    # Publish all domain worktrees
+#   nu scripts/publish-domains.nu --domain <name>   # Publish specific domain
+#   nu scripts/publish-domains.nu --dry-run         # Show what would be published
 
 def main [
+    --domain: string,                  # Specific domain name to publish (optional)
     --dry-run                          # Show what would be published without actually doing it
 ] {
-    print "🔍 Discovering domain worktrees..."
+    if $domain != null {
+        print $"🎯 Publishing specific domain: ($domain)"
+    } else {
+        print "🔍 Discovering all domain worktrees..."
+    }
     print ""
 
     # Check if we're in a git repository
@@ -51,20 +59,54 @@ def main [
     )
 
     # Filter for domain branches (pkgs/*)
-    let domain_worktrees = ($worktrees
+    let all_domain_worktrees = ($worktrees
         | where branch != null
         | where ($it.branch | str starts-with "pkgs/")
     )
 
+    # Filter to specific domain if requested
+    let domain_worktrees = if $domain != null {
+        let target_branch = $"pkgs/($domain)"
+        let filtered = ($all_domain_worktrees | where branch == $target_branch)
+
+        if ($filtered | length) == 0 {
+            # Check if domain exists as a branch but no worktree
+            let branch_exists = try {
+                ^git show-ref --verify --quiet $"refs/heads/($target_branch)"
+                true
+            } catch {
+                false
+            }
+
+            if $branch_exists {
+                error make {msg: $"Domain '($domain)' exists but has no active worktree. Create one with: git worktree add ../meso-forge-pkgs-($domain) ($target_branch)"}
+            } else {
+                error make {msg: $"Domain '($domain)' not found. Available domains: (($all_domain_worktrees | get branch | str join ', '))"}
+            }
+        }
+
+        $filtered
+    } else {
+        $all_domain_worktrees
+    }
+
     if ($domain_worktrees | length) == 0 {
-        print "📭 No domain worktrees found (branches starting with 'pkgs/')"
+        if $domain != null {
+            print $"📭 No worktree found for domain '($domain)'"
+        } else {
+            print "📭 No domain worktrees found (branches starting with 'pkgs/')"
+        }
         return
     }
 
     let domain_count = ($domain_worktrees | length)
-    print $"📦 Found ($domain_count) domain worktrees:"
-    for worktree in $domain_worktrees {
-        print $"  • ($worktree.branch) → ($worktree.path)"
+    if $domain != null {
+        print $"📦 Found domain worktree: ($domain_worktrees.0.branch) → ($domain_worktrees.0.path)"
+    } else {
+        print $"📦 Found ($domain_count) domain worktrees:"
+        for worktree in $domain_worktrees {
+            print $"  • ($worktree.branch) → ($worktree.path)"
+        }
     }
     print ""
 
@@ -92,9 +134,48 @@ def main [
             print $"  ⚠️  Warning: Worktree path ($worktree.path) no longer exists, skipping"
             { success: false, reason: "path_missing" }
         } else {
-            # Change to worktree directory and push
+            # Change to worktree directory, commit pending work, and push
             let push_result = try {
                 cd $worktree.path
+
+                # Check for any uncommitted changes
+                let has_changes = try {
+                    ^git diff-index --quiet HEAD
+                    false
+                } catch {
+                    true
+                }
+
+                let has_untracked = try {
+                    let untracked_files = (^git ls-files --others --exclude-standard | str trim)
+                    ($untracked_files | str length) > 0
+                } catch {
+                    false
+                }
+
+                if $has_changes or $has_untracked {
+                    print $"  📝 Found pending changes, committing..."
+
+                    # Add all changes
+                    ^git add -A
+
+                    # Create commit message with timestamp
+                    let timestamp = (date now | format date "%Y-%m-%d %H:%M:%S")
+                    let commit_message = $"Update ($domain_name) domain - ($timestamp)
+
+Auto-committed pending changes before publishing"
+
+                    try {
+                        ^git commit --no-gpg-sign -m $commit_message
+                        print $"  ✅ Committed pending changes"
+                    } catch {
+                        print $"  ⚠️  Warning: Failed to commit changes, continuing with push..."
+                    }
+                } else {
+                    print $"  ✨ No pending changes to commit"
+                }
+
+                # Push to remote
                 ^git push -u origin $worktree.branch
                 cd $original_dir
                 true
@@ -133,21 +214,33 @@ def main [
     let failed_count = ($results | where success == false | length)
 
     # Summary
-    print "📊 Publishing Summary:"
-    print $"  ✅ Successfully published: ($published_count)/($total_count)"
-    if $failed_count > 0 {
-        print $"  ❌ Failed to publish: ($failed_count)/($total_count)"
-    }
-    print ""
-
-    if $published_count > 0 {
-        print "🌐 Published branches are now available on remote"
+    if $domain != null {
+        if $published_count > 0 {
+            print $"✅ Domain '($domain)' published successfully!"
+            print $"🌐 Branch 'pkgs/($domain)' is now available on remote"
+            print ""
+            print "To continue working on this domain, create a new worktree:"
+            print $"   git worktree add ../meso-forge-pkgs-($domain) pkgs/($domain)"
+        } else {
+            print $"❌ Failed to publish domain '($domain)'"
+        }
+    } else {
+        print "📊 Publishing Summary:"
+        print $"  ✅ Successfully published: ($published_count)/($total_count)"
+        if $failed_count > 0 {
+            print $"  ❌ Failed to publish: ($failed_count)/($total_count)"
+        }
         print ""
-        print "To continue working on any domain, create a new worktree:"
-        for worktree in $domain_worktrees {
-            if ($worktree.path | path exists) == false {
-                let domain_name = ($worktree.branch | str replace "pkgs/" "")
-                print $"   git worktree add ../meso-forge-pkgs-($domain_name) ($worktree.branch)"
+
+        if $published_count > 0 {
+            print "🌐 Published branches are now available on remote"
+            print ""
+            print "To continue working on any domain, create a new worktree:"
+            for worktree in $domain_worktrees {
+                if ($worktree.path | path exists) == false {
+                    let domain_name = ($worktree.branch | str replace "pkgs/" "")
+                    print $"   git worktree add ../meso-forge-pkgs-($domain_name) ($worktree.branch)"
+                }
             }
         }
     }
