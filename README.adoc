@@ -1,0 +1,15 @@
+= flatpak  - meso-forge
+
+This branch contains domain-specific packages.
+
+== Packages
+
+TBD
+
+== Usage
+
+[source,bash]
+----
+pixi global install meso-forge-tooling -c https://prefix.dev/meso-forge
+pixi run build-all
+----
