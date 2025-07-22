@@ -1,0 +1,96 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/prefix-dev/recipe-format/main/schema.json
+schema_version: 1
+
+context:
+  version: "0.1.0"
+  commit: "20fd771a678a241abbb57152e3c2d9a8eee353cb"
+
+package:
+  name: lssecret
+  version: ${{ version }}
+
+source:
+  url: https://gitlab.com/GrantMoyer/lssecret/-/archive/${{ commit }}/lssecret-${{ commit }}.tar.gz
+  sha256: ff3f332b8bc7fec33d2530a0e337f5238909824c2fe5e6d6539739797f5c42bd
+  target_directory: lssecret-src
+
+build:
+  number: 0
+  script:
+    interpreter: nu
+    content: |
+      cd lssecret-src
+
+      # Set environment variables for proper compilation
+      $env.PKG_CONFIG_PATH = ($env.PREFIX | path join "lib" "pkgconfig")
+      $env.CPPFLAGS = (^pkg-config --cflags libsecret-1)
+      $env.LDFLAGS = (^pkg-config --libs libsecret-1)
+
+      # Use the original Makefile
+      ^make
+
+      # Install the binary
+      let bin_dir = ($env.PREFIX | path join "bin")
+      ^mkdir -p $bin_dir
+      ^cp lssecret ($bin_dir | path join "lssecret")
+      ^chmod +x ($bin_dir | path join "lssecret")
+
+requirements:
+  build:
+    - nushell
+    - make
+    - cxx-compiler
+    - pkg-config
+  host:
+    - libsecret
+    - glib
+    - zlib
+  run:
+    - libsecret
+
+tests:
+  # Test 1: Verify package contents are included
+  - package_contents:
+      files:
+        # lssecret binary
+        - ${{ "Library/" if win }}bin/lssecret${{ ".exe" if win }}
+
+  # Test 2: Functional tests
+  - requirements:
+      build:
+        - nushell
+    script:
+      interpreter: nu
+      content: |
+        # Test that the binary exists and is executable
+        let binary_path = ($env.PREFIX | path join "bin" "lssecret")
+        if not ($binary_path | path exists) { exit 1 }
+
+        # Test that the binary shows help (even if it fails due to no secret service)
+        # Just check that it doesn't segfault or have linking issues
+        let help_result = (^lssecret --help | complete)
+        # Exit code 1 is expected when no secret service is available, that's OK
+        # We just want to make sure it's not exit code 127 (command not found) or 139 (segfault)
+        if $help_result.exit_code == 127 { exit 1 }
+        if $help_result.exit_code == 139 { exit 1 }
+
+about:
+  homepage: https://gitlab.com/GrantMoyer/lssecret
+  license: Unlicense
+  license_file:
+    - "lssecret-src/LICENSE"
+  summary: List all secret items using libsecret (e.g. GNOME Keyring)
+  description: |
+    lssecret lists all secret items in a secret service using libsecret,
+    including their labels, secret values, keys, and values. For example, it can
+    be used to list all the passwords and keys stored in a GNOME Keyring.
+
+    The tool provides options to show or hide secret values for security purposes.
+
+extra:
+  recipe-maintainers:
+    - phreed
+
+  version:
+    # Since this project doesn't use tags, we'll track commits manually
+    manual: true

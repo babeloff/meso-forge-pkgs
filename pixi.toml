@@ -10,7 +10,7 @@ channels = ["conda-forge", "https://prefix.dev/meso-forge"]
 platforms = [
     "linux-64",
     "linux-aarch64",
-    "wasi-wasm32",
+    # "wasi-wasm32",  # Commented out due to nushell availability
     # "osx-arm64",
     # "win-64",
     # "osx-64",
@@ -19,6 +19,8 @@ platforms = [
 [dependencies]
 # Core dependency on meso-forge-tooling
 meso-forge-tooling = ">=0.1.4,<0.2.0"
+# Required by meso-forge-tooling
+nushell = ">=0.95.0"
 
 # Build tasks using meso-forge tooling
 [tasks.build-all]
@@ -40,38 +42,45 @@ description = "Build platform-specific packages"
 
 [tasks.publish]
 args = [
-    {arg = "force", default = "" },
-    {arg = "channel", default = "meso-forge" },
+    { arg = "force", default = "" },
+    { arg = "channel", default = "meso-forge" },
 ]
 cmd = [
-    "meso-forge", "publish-pd",
-    "--channel", "{{ channel }}",
+    "meso-forge",
+    "publish-pd",
+    "--channel",
+    "{{ channel }}",
     "{{ '--force' if force != '' else '' }}",
 ]
 description = "Publish packages to prefix.dev"
 
 [tasks.publish-pd]
 args = [
-    {arg = "force", default = "" },
-    {arg = "channel", default = "meso-forge" },
+    { arg = "force", default = "" },
+    { arg = "channel", default = "meso-forge" },
 ]
 cmd = [
-    "meso-forge", "publish-pd",
-    "--channel", "{{ channel }}",
+    "meso-forge",
+    "publish-pd",
+    "--channel",
+    "{{ channel }}",
     "{{ '--force' if force != '' else '' }}",
 ]
 description = "Publish packages to prefix.dev"
 
 [tasks.publish-s3]
 args = [
-    {arg = "force", default = "" },
-    {arg = "channel", default = "s3://pixi/meso-forge" },
-    {arg = "url", default = "https://minio.isis.vanderbilt.edu" },
+    { arg = "force", default = "" },
+    { arg = "channel", default = "s3://pixi/meso-forge" },
+    { arg = "url", default = "https://minio.isis.vanderbilt.edu" },
 ]
 cmd = [
-    "meso-forge", "publish-s3",
-    "--channel", "{{ channel }}",
-    "--url", "{{ url }}",
+    "meso-forge",
+    "publish-s3",
+    "--channel",
+    "{{ channel }}",
+    "--url",
+    "{{ url }}",
     "{{ '--force' if force != '' else '' }}",
 ]
 description = "Publish packages to S3"

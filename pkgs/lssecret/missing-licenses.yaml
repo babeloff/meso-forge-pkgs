@@ -1,0 +1,4 @@
+# This file is used to track missing licenses for dependencies
+# Since lssecret is a simple C++ program with minimal dependencies
+# and is released under the Unlicense (public domain), no additional
+# license tracking is currently needed.

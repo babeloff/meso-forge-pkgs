@@ -1,0 +1,60 @@
+= lssecret
+
+List all secret items using libsecret (e.g. GNOME Keyring).
+
+== Description
+
+lssecret is a simple command-line utility that lists all secret items stored in a secret service using libsecret. This includes passwords, keys, and other sensitive data stored in services like GNOME Keyring.
+
+The tool can display:
+- Item labels
+- Secret values (when explicitly requested)
+- Keys and their associated values
+- Collection information
+
+== Features
+
+- Lists all secrets from libsecret-compatible services
+- Optional display of actual secret values for security
+- Simple command-line interface
+- Minimal dependencies
+
+== Usage
+
+Basic usage:
+```
+lssecret
+```
+
+Show secret values (use with caution):
+```
+lssecret --secrets
+```
+
+Display help:
+```
+lssecret --help
+```
+
+== Options
+
+- `-h, --help` - Print help message and exit
+- `-s, --secrets` - Show secret values (without this flag, secret values appear as '***')
+
+== Security Note
+
+By default, lssecret does not display the actual secret values for security reasons. Use the `--secrets` flag only when necessary and in secure environments.
+
+== Dependencies
+
+- libsecret
+- pkg-config (build time)
+- C++ compiler (build time)
+
+== Source
+
+Original repository: https://gitlab.com/GrantMoyer/lssecret
+
+== License
+
+This software is released into the public domain under the Unlicense.
