@@ -2,6 +2,7 @@
 output/
 wip-out/
 .cache/
+investigate/
 
 # Something created by rust?
 graph.json

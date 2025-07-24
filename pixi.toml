@@ -18,7 +18,7 @@ platforms = [
 
 [dependencies]
 # Core dependency on meso-forge-tooling
-meso-forge-tooling = ">=0.1.4,<0.2.0"
+meso-forge-tooling = ">=0.1.9,<0.2.0"
 # Required by meso-forge-tooling
 nushell = ">=0.95.0"
 
