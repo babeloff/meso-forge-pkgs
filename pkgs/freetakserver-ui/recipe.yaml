@@ -77,14 +77,43 @@ tests:
         # Simple test to verify package structure is accessible
         import os
         import sys
+        import glob
 
-        # Check that the package directory exists
-        site_packages = os.path.join(sys.prefix, 'lib', 'python3.11', 'site-packages')
-        pkg_dir = os.path.join(site_packages, 'FreeTAKServer-UI')
+        # Dynamically find site-packages directory
+        site_packages_dirs = [path for path in sys.path if 'site-packages' in path and os.path.isdir(path)]
 
-        if os.path.exists(pkg_dir):
-            print("FreeTAKServer-UI package directory found")
-        else:
+        if not site_packages_dirs:
+            raise Exception("No site-packages directory found in sys.path")
+
+        # Look for FreeTAKServer-UI package in any of the site-packages directories
+        found = False
+        for site_packages in site_packages_dirs:
+            # Try different possible package names/patterns
+            possible_patterns = [
+                'FreeTAKServer-UI',
+                'FreeTAKServer_UI*',
+                'freetakserver_ui*',
+                '*FreeTAKServer*UI*'
+            ]
+
+            for pattern in possible_patterns:
+                matches = glob.glob(os.path.join(site_packages, pattern))
+                if matches:
+                    print(f"FreeTAKServer-UI package found at: {matches[0]}")
+                    found = True
+                    break
+
+            if found:
+                break
+
+        if not found:
+            # List what's actually in site-packages for debugging
+            print("Available packages in site-packages:")
+            for site_packages in site_packages_dirs:
+                items = os.listdir(site_packages)
+                for item in sorted(items):
+                    if 'freetakserver' in item.lower() or 'ui' in item.lower():
+                        print(f"  {item}")
             raise Exception("FreeTAKServer-UI package directory not found")
 
 about:

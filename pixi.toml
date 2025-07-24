@@ -5,7 +5,12 @@ name = "meso-forge-packages"
 version = "0.1.0"
 description = "Domain-specific conda packages for meso-forge"
 authors = ["meso-forge maintainers"]
-channels = ["conda-forge", "https://prefix.dev/meso-forge"]
+channels = [
+    "conda-forge",
+    "https://prefix.dev/meso-forge",
+    # "s3://pixi-local/meso-forge",
+    "http://localhost:19000/pixi-local/meso-forge",
+]
 
 platforms = [
     "linux-64",
@@ -18,24 +23,24 @@ platforms = [
 
 [dependencies]
 # Core dependency on meso-forge-tooling
-meso-forge-tooling = ">=0.1.4,<0.2.0"
+meso-forge-tooling = ">=0.1.9,<0.2.0"
 
 # Build tasks using meso-forge tooling
 [tasks.build-all]
-cmd = ["meso-forge", "build-all"]
+cmd = ["meso-forge.nu", "build-all"]
 description = "Build all packages in this domain"
 
 [tasks.build]
 args = [{ arg = "package" }]
-cmd = ["meso-forge", "build", "{{ package }}"]
+cmd = ["meso-forge.nu", "build", "{{ package }}"]
 description = "Build a specific package"
 
 [tasks.build-noarch]
-cmd = ["meso-forge", "build-noarch"]
+cmd = ["meso-forge.nu", "build-noarch"]
 description = "Build noarch packages only"
 
 [tasks.build-platform]
-cmd = ["meso-forge", "build-platform"]
+cmd = ["meso-forge.nu", "build-platform"]
 description = "Build platform-specific packages"
 
 [tasks.publish]
@@ -44,7 +49,7 @@ args = [
     { arg = "channel", default = "meso-forge" },
 ]
 cmd = [
-    "meso-forge",
+    "meso-forge.nu",
     "publish-pd",
     "--channel",
     "{{ channel }}",
@@ -58,7 +63,7 @@ args = [
     { arg = "channel", default = "meso-forge" },
 ]
 cmd = [
-    "meso-forge",
+    "meso-forge.nu",
     "publish-pd",
     "--channel",
     "{{ channel }}",
@@ -73,7 +78,7 @@ args = [
     { arg = "url", default = "https://minio.isis.vanderbilt.edu" },
 ]
 cmd = [
-    "meso-forge",
+    "meso-forge.nu",
     "publish-s3",
     "--channel",
     "{{ channel }}",
@@ -84,21 +89,13 @@ cmd = [
 description = "Publish packages to S3"
 
 [tasks.publish-local]
-args = [
-    { arg = "force", default = "" },
-    { arg = "channel", default = "s3://pixi-local/meso-forge" },
-    { arg = "url", default = "http://localhost" },
+args = [{ arg = "force", default = "" }]
+cmd = [
+    "meso-forge.nu",
+    "publish-local",
+    "{{ '--force' if force != '' else '' }}",
 ]
-# the upload expects the RATTLER_AUTH_FILE variable to be set
-depends-on = [
-    { task = "publish-s3", args = [
-        "--channel",
-        "{{ channel }}",
-        "--url",
-        "{{ url }}",
-        "{{ '--force' if force != '' else '' }}",
-    ] },
-]
+description = "Publish packages to local MinIO"
 
 [tasks.index-s3]
 args = [
@@ -128,11 +125,11 @@ depends-on = [
 ]
 
 [tasks.test]
-cmd = ["meso-forge", "test"]
+cmd = ["meso-forge.nu", "test"]
 description = "Test built packages"
 
 [tasks.lint]
-cmd = ["meso-forge", "lint"]
+cmd = ["meso-forge.nu", "lint"]
 description = "Lint and validate recipes"
 
 [tasks.clean]
@@ -144,16 +141,16 @@ args = [
     { arg = "type", default = "_skeleton_python" },
     { arg = "name", default = "a_new_name" },
 ]
-cmd = ["meso-forge", "init-package", "{{ type }}", "{{ name }}"]
+cmd = ["meso-forge.nu", "init-package", "{{ type }}", "{{ name }}"]
 description = "Create new package from skeleton"
 
 [tasks.update-versions]
-cmd = ["meso-forge", "version-update", "--each"]
+cmd = ["meso-forge.nu", "version-update", "--each"]
 description = "Update all package versions"
 
 [tasks.update-version]
 args = [{ arg = "package" }]
-cmd = ["meso-forge", "version-update", "--package", "{{ package }}"]
+cmd = ["meso-forge.nu", "version-update", "--package", "{{ package }}"]
 description = "Update specific package version"
 
 # Environment for this package branch
