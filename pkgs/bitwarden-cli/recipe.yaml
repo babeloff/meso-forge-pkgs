@@ -46,9 +46,10 @@ build:
       ^mkdir -p $bin_dir
       let wrapper_script = ($bin_dir | path join "bw")
 
-      let script_content = "#!/bin/bash" + "\n" + "export NODE_PATH=\"$PREFIX/lib/bitwarden-cli/node_modules:$NODE_PATH\"" + "\n" + "exec node \"$PREFIX/lib/bitwarden-cli/bw.js\" \"$@\""
-
-      $script_content | save $wrapper_script
+      "#!/bin/bash
+      export NODE_PATH=\"$PREFIX/lib/bitwarden-cli/node_modules:$NODE_PATH\"
+      exec node \"$PREFIX/lib/bitwarden-cli/bw.js\" \"$@\"
+      " | save $wrapper_script
       ^chmod +x $wrapper_script
 
 requirements:
