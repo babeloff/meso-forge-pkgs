@@ -23,37 +23,42 @@ build:
 
 requirements:
   build:
-  - nushell
-  - pkgconf
-  - rust
+    - nushell
+    - pkgconf
+    - if arch == "aarch64" {
+      - rust-std-aarch64-unknown-linux-gnu
+      }
+    - if arch == "x86_64" {
+      - rust
+      }
   host:
-  - sqlite
+    - sqlite
   run:
-  - if: linux
-    then:
-    - openssl
+    - if: linux
+      then:
+        - openssl
 
 tests:
   # Test 1: Verify package contents are included
-- package_contents:
-    files:
+  - package_contents:
+      files:
         # iamb binary
-    - ${{ "Library/" if win }}bin/iamb${{ ".exe" if win }}
+        - ${{ "Library/" if win }}bin/iamb${{ ".exe" if win }}
 
-    # Test 2: Functional tests
-- requirements:
-    build:
-    - nushell
-  script:
-    interpreter: nu
-    content:
-    - ^iamb --version
+      # Test 2: Functional tests
+  - requirements:
+      build:
+        - nushell
+    script:
+      interpreter: nu
+      content:
+        - ^iamb --version
 
 about:
   homepage: https://iamb.chat
   license: Apache-2.0
   license_file:
-  - LICENSE
+    - LICENSE
   summary: Matrix client for Vim addicts
   description: |
     iamb is a Matrix client for the terminal that uses Vim keybindings.
@@ -61,7 +66,7 @@ about:
 
 extra:
   recipe-maintainers:
-  - phreed
+    - phreed
   version:
     github-tags:
-    - ^(\d+\.\d+\.\d+.*)
+      - ^(\d+\.\d+\.\d+.*)

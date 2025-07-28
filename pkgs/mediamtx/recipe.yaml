@@ -87,8 +87,13 @@ requirements:
   build:
     - nushell
       # For static binaries without C dependencies
-    - ${{ compiler('go-nocgo') }}
     - go-licenses
+    - if arch == "aarch64" {
+      - ${{ compiler('go-nocgo_linux-aarch64') }}
+      }
+    - if arch == "x86_64" {
+      - ${{ compiler('go-nocgo') }}
+      }
 
 tests:
   # Test 1: Verify package contents are included
