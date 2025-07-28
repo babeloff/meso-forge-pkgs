@@ -23,24 +23,24 @@ platforms = [
 
 [dependencies]
 # Core dependency on meso-forge-tooling
-meso-forge-tooling = ">=0.1.9,<0.2.0"
+meso-forge-tooling = ">=0.3.0,<0.4.0"
 
 # Build tasks using meso-forge tooling
 [tasks.build-all]
-cmd = ["meso-forge.nu", "build-all"]
+cmd = ["meso-forge-build-all"]
 description = "Build all packages in this domain"
 
 [tasks.build]
 args = [{ arg = "package" }]
-cmd = ["meso-forge.nu", "build", "{{ package }}"]
+cmd = ["meso-forge-build-single", "{{ package }}"]
 description = "Build a specific package"
 
 [tasks.build-noarch]
-cmd = ["meso-forge.nu", "build-noarch"]
+cmd = ["meso-forge-build-noarch"]
 description = "Build noarch packages only"
 
 [tasks.build-platform]
-cmd = ["meso-forge.nu", "build-platform"]
+cmd = ["meso-forge-build-platform"]
 description = "Build platform-specific packages"
 
 [tasks.publish]
@@ -89,11 +89,16 @@ cmd = [
 description = "Publish packages to S3"
 
 [tasks.publish-local]
-args = [{ arg = "force", default = "" }]
+args = [
+    { arg = "force", default = "" },
+    { arg = "dryrun", default = "" },
+    { arg = "verbose", default = "" },
+]
 cmd = [
-    "meso-forge.nu",
-    "publish-local",
-    "{{ '--force' if force != '' else '' }}",
+    "meso-forge-publish-local",
+    "{{ force }}",
+    "{{ dryrun }}",
+    "{{ verbose }}",
 ]
 description = "Publish packages to local MinIO"
 
@@ -152,6 +157,23 @@ description = "Update all package versions"
 args = [{ arg = "package" }]
 cmd = ["meso-forge.nu", "version-update", "--package", "{{ package }}"]
 description = "Update specific package version"
+
+[tasks.analyze]
+cmd = [
+    "python",
+    ".pixi/envs/default/share/meso-forge-tooling/scripts/analyze_recipes.py",
+    "--base-dir",
+    ".",
+]
+description = "Analyze recipes for issues"
+
+[tasks.pixi-analyze]
+cmd = [
+    "nu",
+    "-c",
+    "use (.pixi/envs/default/share/meso-forge-tooling/scripts/pixi_tasks_mod.nu); analyze_tasks pixi.toml false false",
+]
+description = "Analyze pixi tasks (workaround for pixi-tasks)"
 
 # Environment for this package branch
 [environments]

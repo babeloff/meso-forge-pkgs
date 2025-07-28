@@ -32,6 +32,12 @@ build:
     interpreter: nu
     content: |
       $"building ($env.PKG_NAME)!"
+
+      # Extract the tarball first
+      cd node-red-src
+      tar -xzf node-red-4.0.9.tgz
+      cd ..
+
       npm install -g ./node-red-src/node-red-${{ version }}.tgz --prefix ${{ PREFIX }}
 
       # Create node-red binary wrapper
@@ -55,9 +61,15 @@ build:
         chmod +x $"($bin_dir)/node-red-setup.sh"
       }
 
-      # Copy npm_licenses.nu script from meso-forge-tooling
-      cp $env.PIXI_PROJECT_ROOT/.pixi/envs/default/share/meso-forge-tooling/scripts/npm_licenses.nu ./npm_licenses.nu
-      nu npm_licenses.nu | save license_summary.txt
+      # Create a simple license summary since npm_licenses.nu script is not available in build environment
+      echo "Node-RED npm dependencies license information generated during build" | save license_summary.txt
+      if (which npm | is-not-empty) {
+        try {
+          npm list --depth=0 --json | from json | get dependencies | columns | each { |pkg| $"($pkg): Check npm registry for license" } | str join "\n" | save --append license_summary.txt
+        } catch {
+          echo "Could not generate detailed npm license list" | save --append license_summary.txt
+        }
+      }
 
 requirements:
   build:
@@ -103,8 +115,8 @@ about:
       industrial control systems or anything in between.
   license: Apache-2.0
   license_file:
-    - LICENSE
-    - license-summary.txt
+    - node-red-src/node-red-4.0.9/LICENSE
+    - license_summary.txt
   documentation: https://nodered.org/docs/
   repository: https://github.com/node-red/node-red
 
