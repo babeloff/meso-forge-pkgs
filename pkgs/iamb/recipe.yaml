@@ -25,12 +25,12 @@ requirements:
   build:
     - nushell
     - pkgconf
-    - if arch == "aarch64" {
-      - rust-std-aarch64-unknown-linux-gnu
-      }
-    - if arch == "x86_64" {
-      - rust
-      }
+    - if: arch == "aarch64"
+      then:
+        - rust-std-aarch64-unknown-linux-gnu
+    - if: arch == "x86_64"
+      then:
+        - rust
   host:
     - sqlite
   run:

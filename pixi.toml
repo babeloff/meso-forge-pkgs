@@ -23,7 +23,7 @@ platforms = [
 
 [dependencies]
 # Core dependency on meso-forge-tooling
-meso-forge-tooling = ">=0.3.0,<0.4.0"
+meso-forge = ">=0.3.4,<0.4.0"
 
 # Build tasks using meso-forge tooling
 [tasks.build-all]
@@ -32,7 +32,7 @@ description = "Build all packages in this domain"
 
 [tasks.build]
 args = [{ arg = "package" }]
-cmd = ["meso-forge-build-single", "{{ package }}"]
+cmd = ["meso-forge-build-single", "--recipe", "pkgs/{{ package }}/recipe.yaml"]
 description = "Build a specific package"
 
 [tasks.build-noarch]
