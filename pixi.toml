@@ -5,12 +5,16 @@ name = "meso-forge-packages"
 version = "0.1.0"
 description = "Domain-specific conda packages for meso-forge"
 authors = ["meso-forge maintainers"]
-channels = ["conda-forge", "https://prefix.dev/meso-forge"]
+channels = [
+    "http://localhost:19000/pixi-local/meso-forge",
+    "conda-forge",
+    "https://prefix.dev/meso-forge",
+]
 
 platforms = [
     "linux-64",
     "linux-aarch64",
-    "wasi-wasm32",
+    # "wasi-wasm32",
     # "osx-arm64",
     # "win-64",
     # "osx-64",
@@ -18,24 +22,24 @@ platforms = [
 
 [dependencies]
 # Core dependency on meso-forge-tooling
-meso-forge-tooling = ">=0.1.4,<0.2.0"
+meso-forge = ">=0.3.4,<0.4.0"
 
 # Build tasks using meso-forge tooling
 [tasks.build-all]
-cmd = ["meso-forge", "build-all"]
+cmd = ["meso-forge-build-all"]
 description = "Build all packages in this domain"
 
 [tasks.build]
 args = [{ arg = "package" }]
-cmd = ["meso-forge", "build", "{{ package }}"]
+cmd = ["meso-forge-build-single", "{{ package }}"]
 description = "Build a specific package"
 
 [tasks.build-noarch]
-cmd = ["meso-forge", "build-noarch"]
+cmd = ["meso-forge-build-noarch"]
 description = "Build noarch packages only"
 
 [tasks.build-platform]
-cmd = ["meso-forge", "build-platform"]
+cmd = ["meso-forge-build-platform"]
 description = "Build platform-specific packages"
 
 [tasks.publish]
@@ -73,7 +77,7 @@ args = [
     { arg = "url", default = "https://minio.isis.vanderbilt.edu" },
 ]
 cmd = [
-    "meso-forge",
+    "meso-forge.nu",
     "publish-s3",
     "--channel",
     "{{ channel }}",
@@ -82,6 +86,20 @@ cmd = [
     "{{ '--force' if force != '' else '' }}",
 ]
 description = "Publish packages to S3"
+
+[tasks.publish-local]
+args = [
+    { arg = "force", default = "" },
+    { arg = "dryrun", default = "" },
+    { arg = "verbose", default = "" },
+]
+cmd = [
+    "meso-forge-publish-local",
+    "{{ force }}",
+    "{{ dryrun }}",
+    "{{ verbose }}",
+]
+description = "Publish packages to local MinIO"
 
 [tasks.test]
 cmd = ["meso-forge", "test"]

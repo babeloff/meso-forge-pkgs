@@ -22,9 +22,9 @@ build:
     content: |
       # Change to the extracted directory and build
       cd metashell
-      ^cmake -S 3rd/templight/llvm -B build/templight -DLIBCLANG_BUILD_STATIC=ON -DLLVM_ENABLE_TERMINFO=OFF -DLLVM_ENABLE_PROJECTS=clang ${{ CMAKE_ARGS }}
+      ^cmake -S 3rd/templight/llvm -B build/templight -DCMAKE_BUILD_TYPE=Release -DLIBCLANG_BUILD_STATIC=ON -DLLVM_ENABLE_TERMINFO=OFF -DLLVM_ENABLE_PROJECTS=clang ${{ CMAKE_ARGS }}
       ^cmake --build build/templight --target templight
-      ^cmake -S . -B build/metashell ${{ CMAKE_ARGS }}
+      ^cmake -S . -B build/metashell -DCMAKE_BUILD_TYPE=Release ${{ CMAKE_ARGS }}
       ^cmake --build build/metashell
       ^cmake --install build/metashell
 
