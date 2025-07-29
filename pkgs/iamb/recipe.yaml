@@ -19,6 +19,8 @@ build:
     content: |
       $env.LIBSQLITE3_SYS_USE_PKG_CONFIG = "1"
       $env.VERGEN_GIT_SHA = "${{ env.get('CONDA_PREFIX') }}"
+      # Override ratatui-image to use compatible version
+      ^sed -i 's/ratatui-image = { version = "1.0.0", features = \["serde"\] }/# ratatui-image = { version = "1.0.0", features = ["serde"] }/' Cargo.toml
       ^cargo install --root ($env.PREFIX) --path .
 
 requirements:

@@ -1,0 +1,12 @@
+--- a/src/windows/room/scrollback.rs
++++ b/src/windows/room/scrollback.rs
+@@ -1401,7 +1401,7 @@
+             rect.x = x;
+             rect.y = y;
+             // Don't render outside of scrollback area
+             if rect.bottom() <= area.bottom() && rect.right() <= area.right() {
+-                image_widget.render(rect, buf);
++                Widget::render(image_widget, rect, buf);
+             }
+         }
+ 

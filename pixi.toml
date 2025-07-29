@@ -23,7 +23,7 @@ platforms = [
 
 [dependencies]
 # Core dependency on meso-forge-tooling
-meso-forge = ">=0.3.4,<0.4.0"
+meso-forge = ">=0.3.5,<0.4.0"
 
 # Build tasks using meso-forge tooling
 [tasks.build-all]
@@ -31,8 +31,22 @@ cmd = ["meso-forge-build-all"]
 description = "Build all packages in this domain"
 
 [tasks.build]
-args = [{ arg = "package" }]
-cmd = ["meso-forge-build-single", "--recipe", "pkgs/{{ package }}/recipe.yaml"]
+args = [
+    { arg = "package" },
+    { arg = "dry_run", default = "" },
+    { arg = "verbose", default = "" },
+    { arg = "force", default = "" },
+]
+# cmd = ["meso-forge-build-single", "--recipe", "pkgs/{{ package }}/recipe.yaml"]
+cmd = [
+    "nu",
+    ".pixi/envs/default/share/meso-forge/scripts/build_single.nu",
+    "--recipe",
+    "pkgs/{{ package }}/recipe.yaml",
+    "{{ '--dry-run' if dry_run != '' else '' }}",
+    "{{ '--verbose' if verbose != '' else '' }}",
+    "{{ '--force' if force != '' else '' }}",
+]
 description = "Build a specific package"
 
 [tasks.build-noarch]
