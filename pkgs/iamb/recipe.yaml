@@ -2,15 +2,15 @@
 schema_version: 1
 
 context:
-  version: "0.0.10"
+  version: "0.0.11_alpha.1"
 
 package:
   name: iamb
   version: ${{ version }}
 
 source:
-  url: https://github.com/ulyssa/iamb/archive/refs/tags/v0.0.10.tar.gz
-  sha256: f628cfbd9eba9e8881902b970e9432fec815044ec9bea901a8562ea3ef8f4615
+  url: https://github.com/phreed/iamb/archive/refs/tags/v0.0.11-alpha.1.tar.gz
+  sha256: 2e3c09dfe5e72d63c2d1eac24655d30a738ab03cd41ed0809dc700c6dfd034db
 
 build:
   number: 0
@@ -18,21 +18,18 @@ build:
     interpreter: nu
     content: |
       $env.LIBSQLITE3_SYS_USE_PKG_CONFIG = "1"
-      $env.VERGEN_GIT_SHA = "${{ env.get('CONDA_PREFIX') }}"
-      # Override ratatui-image to use compatible version
-      ^sed -i 's/ratatui-image = { version = "1.0.0", features = \["serde"\] }/# ratatui-image = { version = "1.0.0", features = ["serde"] }/' Cargo.toml
-      ^cargo install --root ($env.PREFIX) --path .
+      $env.VERGEN_GIT_SHA = ($env.PREFIX)
+
+      ^cargo install --root ($env.PREFIX) --path . --features "bundled,rustls-tls"
 
 requirements:
   build:
     - nushell
     - pkgconf
+    - rust
     - if: arch == "aarch64"
       then:
         - rust-std-aarch64-unknown-linux-gnu
-    - if: arch == "x86_64"
-      then:
-        - rust
   host:
     - sqlite
   run:

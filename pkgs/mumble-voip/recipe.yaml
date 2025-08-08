@@ -45,12 +45,8 @@ source:
     target_directory: src/mumble/3rdparty/minhook/
   - if: linux
     then:
-      path: systemd/mumble-server.service
-      target_directory: systemd/mumble-server.service
-  - if: linux
-    then:
-      path: systemd/mumble-server-setup.sh
-      target_directory: systemd/mumble-server-setup.sh
+      path: service.yaml
+      target_directory: service-config
 
 # https://github.com/mumble-voip/mumble/blob/master/docs/dev/build-instructions/README.md
 build:
@@ -68,15 +64,20 @@ build:
       mkdir ($env.PREFIX + "/bin")
       cp mumble ($env.PREFIX + "/bin/mumble")
 
-      # Install systemd unit file and setup script on Linux
+      # Install service configuration file on Linux
       if ($nu.os-info.name == "linux") {
-        print "Installing systemd unit file and setup script..."
-        let systemd_dir = $"($env.PREFIX)/lib/systemd/system"
-        let bin_dir = $"($env.PREFIX)/bin"
-        mkdir $systemd_dir
-        cp $"($env.SRC_DIR)/systemd/mumble-server.service/mumble-server.service" $"($systemd_dir)/mumble-server.service"
-        cp $"($env.SRC_DIR)/systemd/mumble-server-setup.sh/mumble-server-setup.sh" $"($bin_dir)/mumble-server-setup.sh"
-        chmod +x $"($bin_dir)/mumble-server-setup.sh"
+        print "Installing service configuration file..."
+
+        let config_dir = $"($env.PREFIX)/config"
+        mkdir $config_dir
+        cp $"($env.SRC_DIR)/service-config/service.yaml" $"($config_dir)/service.yaml"
+
+        # Verify the file was placed correctly
+        if ($"($config_dir)/service.yaml" | path exists) {
+          print $"✓ Service configuration installed to: ($config_dir)/service.yaml"
+        } else {
+          print $"❌ Failed to install service configuration to: ($config_dir)/service.yaml"
+        }
       }
 
 requirements:
@@ -135,9 +136,8 @@ tests:
       files:
         # Mumble binary
         - ${{ "Library/" if win }}bin/mumble${{ ".exe" if win }}
-          # Systemd files (Linux only)
-        - ${{ "lib/systemd/system/mumble-server.service" if linux }}
-        - ${{ "bin/mumble-server-setup.sh" if linux }}
+          # Service configuration file (Linux only)
+        - ${{ "config/service.yaml" if linux }}
 
     # Test 2: Functional tests
   - requirements:

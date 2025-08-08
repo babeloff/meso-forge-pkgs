@@ -138,7 +138,7 @@ cmd = [
 [tasks.index-local]
 depends-on = [
     { task = "index-s3", args = [
-        "http://localhost",
+        "http://localhost:19000",
         "s3://pixi-local/meso-forge",
     ] },
 ]

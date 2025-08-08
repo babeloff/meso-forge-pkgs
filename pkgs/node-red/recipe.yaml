@@ -16,12 +16,8 @@ source:
 
   - if: linux
     then:
-      path: systemd/node-red.service
-      target_directory: systemd/node-red.service
-  - if: linux
-    then:
-      path: systemd/node-red-setup.sh
-      target_directory: systemd/node-red-setup.sh
+      path: service.yaml
+      target_directory: service-config
   - if: win
     then:
       path: bin/node-red.cmd
@@ -50,15 +46,20 @@ build:
       $wrapper_content | save $node_red_bin
       chmod +x $node_red_bin
 
-      # Install systemd unit file and setup script on Linux
+      # Install service configuration file on Linux
       if ($nu.os-info.name == "linux") {
-        print "Installing systemd unit file and setup script..."
-        let systemd_dir = $"($env.PREFIX)/lib/systemd/system"
-        let bin_dir = $"($env.PREFIX)/bin"
-        mkdir $systemd_dir
-        cp $"($env.SRC_DIR)/systemd/node-red.service/node-red.service" $"($systemd_dir)/node-red.service"
-        cp $"($env.SRC_DIR)/systemd/node-red-setup.sh/node-red-setup.sh" $"($bin_dir)/node-red-setup.sh"
-        chmod +x $"($bin_dir)/node-red-setup.sh"
+        print "Installing service configuration file..."
+
+        let config_dir = $"($env.PREFIX)/config"
+        mkdir $config_dir
+        cp $"($env.SRC_DIR)/service-config/service.yaml" $"($config_dir)/service.yaml"
+
+        # Verify the file was placed correctly
+        if ($"($config_dir)/service.yaml" | path exists) {
+          print $"✓ Service configuration installed to: ($config_dir)/service.yaml"
+        } else {
+          print $"❌ Failed to install service configuration to: ($config_dir)/service.yaml"
+        }
       }
 
       # Create a simple license summary since npm_licenses.nu script is not available in build environment
@@ -89,9 +90,8 @@ tests:
         - ${{ "Library/" if win }}lib/node_modules/node-red/package.json
           # Binary/executable
         - ${{ "Library/" if win }}bin/node-red${{ ".cmd" if win }}
-          # Systemd files (Linux only)
-        - ${{ "lib/systemd/system/node-red.service" if linux }}
-        - ${{ "bin/node-red-setup.sh" if linux }}
+          # Service configuration file (Linux only)
+        - ${{ "config/service.yaml" if linux }}
 
       # Test 2: Functional tests
   - requirements:

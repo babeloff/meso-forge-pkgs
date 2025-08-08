@@ -1,0 +1,123 @@
+version: 1
+name: freetakserver
+display_name: FreeTAKServer
+description: FreeTAKServer - Open Source TAK Server for situational awareness applications
+category: "server"
+
+executable:
+  task: python
+  arguments:
+    - "-m"
+    - "FreeTAKServer.controllers.services.FTS"
+  working_directory: /var/lib/freetakserver
+  environment:
+    - FTS_FIRST_START=false
+    - PYTHONUNBUFFERED=1
+
+service_type: simple
+startup_mode: automatic
+
+security:
+  run_as_user: freetakserver
+  run_as_group: freetakserver
+
+dependencies:
+  services:
+    - network-online.target
+  groups:
+    - network
+
+recovery:
+  restart_policy: on_failure
+  restart_delay: "5s"
+  max_restarts: 3
+  restart_window: "60s"
+
+timeouts:
+  start: "60s"
+  stop: "30s"
+  watchdog: "120s"
+
+files:
+  # Service home directory
+  - path: /var/lib/freetakserver
+    persistence: volatile
+    type: directory
+    permissions: "755"
+    owner: "freetakserver:freetakserver"
+
+  # Certificate directory with restricted permissions
+  - path: /var/lib/freetakserver/certs
+    persistence: volatile
+    type: directory
+    permissions: "700"
+    owner: "freetakserver:freetakserver"
+
+  # Data directory
+  - path: /var/lib/freetakserver/data
+    persistence: volatile
+    type: directory
+    permissions: "755"
+    owner: "freetakserver:freetakserver"
+
+  # Log directory
+  - path: /var/log/freetakserver
+    persistence: volatile
+    type: directory
+    permissions: "755"
+    owner: "freetakserver:freetakserver"
+
+  # Configuration directory
+  - path: /etc/freetakserver
+    persistence: durable
+    type: directory
+    permissions: "755"
+    owner: "root:root"
+
+platform_specific:
+  systemd:
+    unit:
+      Description: "FreeTAKServer - Open Source TAK Server"
+      Documentation: "https://freetakteam.github.io/FreeTAKServer-User-Docs/"
+      After:
+        - network.target
+        - network-online.target
+      Wants:
+        - network-online.target
+    service:
+      Type: simple
+      Restart: on-failure
+      RestartSec: 5
+      StartLimitInterval: 60s
+      StartLimitBurst: 3
+      StandardOutput: journal
+      StandardError: journal
+      SyslogIdentifier: freetakserver
+      # Security settings
+      NoNewPrivileges: true
+      ProtectSystem: strict
+      ProtectHome: true
+      ReadWritePaths:
+        - /var/lib/freetakserver
+        - /var/log/freetakserver
+      PrivateTmp: true
+      ProtectKernelTunables: true
+      ProtectKernelModules: true
+      ProtectControlGroups: true
+      RestrictRealtime: true
+      RestrictSUIDSGID: true
+      # Network security
+      IPAddressDeny: any
+      IPAddressAllow:
+        - localhost
+        - 10.0.0.0/8
+        - 172.16.0.0/12
+        - 192.168.0.0/16
+      # Resource limits
+      LimitNOFILE: 65536
+      LimitNPROC: 32768
+    install:
+      WantedBy:
+        - multi-user.target
+      Alias:
+        - fts.service

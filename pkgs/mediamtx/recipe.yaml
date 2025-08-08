@@ -14,12 +14,8 @@ source:
     target_directory: src/mediamtx
   - if: linux
     then:
-      path: systemd/mediamtx.service
-      target_directory: systemd
-  - if: linux
-    then:
-      path: systemd/mediamtx-setup.sh
-      target_directory: systemd
+      path: service.yaml
+      target_directory: service-config
 
 build:
   number: 0
@@ -49,15 +45,20 @@ build:
       let output_path = $"($env.PREFIX)/bin/mediamtx"
       go build -ldflags $ldflags_str -o $output_path .
 
-      # Install systemd unit file and setup script on Linux
+      # Install service configuration file on Linux
       if ($nu.os-info.name == "linux") {
-        print "Installing systemd unit file and setup script..."
-        let systemd_dir = $"($env.PREFIX)/lib/systemd/system"
-        let bin_dir = $"($env.PREFIX)/bin"
-        mkdir $systemd_dir
-        cp $"($env.SRC_DIR)/systemd/mediamtx.service" $"($systemd_dir)/mediamtx.service"
-        cp $"($env.SRC_DIR)/systemd/mediamtx-setup.sh" $"($bin_dir)/mediamtx-setup.sh"
-        chmod +x $"($bin_dir)/mediamtx-setup.sh"
+        print "Installing service configuration file..."
+
+        let config_dir = $"($env.PREFIX)/config"
+        mkdir $config_dir
+        cp $"($env.SRC_DIR)/service-config/service.yaml" $"($config_dir)/service.yaml"
+
+        # Verify the file was placed correctly
+        if ($"($config_dir)/service.yaml" | path exists) {
+          print $"✓ Service configuration installed to: ($config_dir)/service.yaml"
+        } else {
+          print $"❌ Failed to install service configuration to: ($config_dir)/service.yaml"
+        }
       }
 
       # Collect licenses from all dependencies (optional)
@@ -101,9 +102,8 @@ tests:
       files:
         # MediaMTX binary
         - ${{ "Library/" if win }}bin/mediamtx${{ ".exe" if win }}
-          # Systemd files (Linux only)
-        - ${{ "lib/systemd/system/mediamtx.service" if linux }}
-        - ${{ "bin/mediamtx-setup.sh" if linux }}
+          # Service configuration file (Linux only)
+        - ${{ "config/service.yaml" if linux }}
 
       # Test 2: Functional tests
   - requirements:

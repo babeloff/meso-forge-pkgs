@@ -15,12 +15,8 @@ source:
     target_directory: freetakserver-src
   - if: linux
     then:
-      path: systemd/freetakserver.service
-      target_directory: systemd
-  - if: linux
-    then:
-      path: systemd/freetakserver-setup.py
-      target_directory: systemd
+      path: service.yaml
+      target_directory: service-config
 
 build:
   number: 0
@@ -32,26 +28,19 @@ build:
       cd freetakserver-src
       ^pip install . -v
 
-      # Install systemd unit file and setup script on Linux
+      # Install service configuration file on Linux
       if ($nu.os-info.name == "linux") {
-        print "Installing systemd unit file and setup script..."
-        let systemd_dir = $"($env.PREFIX)/lib/systemd/system"
-        let python_scripts_dir = $"($env.PREFIX)/python-scripts"
+        print "Installing service configuration file..."
 
-        mkdir $systemd_dir
-        mkdir $python_scripts_dir
-
-        cp $"($env.SRC_DIR)/systemd/freetakserver.service" $"($systemd_dir)/freetakserver.service"
-
-        # Copy setup script to python-scripts directory
-        cp $"($env.SRC_DIR)/systemd/freetakserver-setup.py" $"($python_scripts_dir)/freetakserver-setup"
-        chmod +x $"($python_scripts_dir)/freetakserver-setup"
+        let config_dir = $"($env.PREFIX)/config"
+        mkdir $config_dir
+        cp $"($env.SRC_DIR)/service-config/service.yaml" $"($config_dir)/service.yaml"
 
         # Verify the file was placed correctly
-        if ($"($python_scripts_dir)/freetakserver-setup" | path exists) {
-          print $"✓ Setup script installed to: ($python_scripts_dir)/freetakserver-setup"
+        if ($"($config_dir)/service.yaml" | path exists) {
+          print $"✓ Service configuration installed to: ($config_dir)/service.yaml"
         } else {
-          print $"❌ Failed to install setup script to: ($python_scripts_dir)/freetakserver-setup"
+          print $"❌ Failed to install service configuration to: ($config_dir)/service.yaml"
         }
       }
 
@@ -127,9 +116,8 @@ tests:
       files:
         # Python package files
         - site-packages/FreeTAKServer/__init__.py
-          # Systemd files (Linux only)
-        - ${{ "lib/systemd/system/freetakserver.service" if linux }}
-        - ${{ "python-scripts/freetakserver-setup" if linux }}
+          # Service configuration file (Linux only)
+        - ${{ "config/service.yaml" if linux }}
 
       # Test 2: Python import test
   - script:
